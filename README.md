@@ -35,3 +35,6 @@ The JavaScript passed `node --check`, but browser end-to-end testing was blocked
 - An initialization failure now shows a visible message.
 - The service worker cache is bumped and navigation is network-first when online.
 - To update GitHub Pages, **replace all files** with the contents of this ZIP. Allow deployment to finish, then refresh the site twice. Existing encrypted IndexedDB records are not intentionally deleted.
+
+## Version 1.2 troubleshooting
+If vault creation does not work, the error now displays below the button. Use a 12+ character passphrase, enter the same value twice, and access the site via its HTTPS GitHub Pages URL. Update **all files** (including `app.js`, `index.html`, `sw.js`) and hard refresh. Existing encrypted vaults are not intentionally deleted.
