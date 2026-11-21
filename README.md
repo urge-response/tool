@@ -29,3 +29,9 @@ This is a first working prototype adapted from the approved Version 6.3 Android 
 - Test on Android, iOS Safari, and desktop browsers.
 
 The JavaScript passed `node --check`, but browser end-to-end testing was blocked in this execution environment. Treat this as a prototype, not a production-audited security implementation.
+
+## Version 1.1 startup fix
+- The passphrase/setup screen is visible by default, so a JavaScript failure cannot leave both panels invisible.
+- An initialization failure now shows a visible message.
+- The service worker cache is bumped and navigation is network-first when online.
+- To update GitHub Pages, **replace all files** with the contents of this ZIP. Allow deployment to finish, then refresh the site twice. Existing encrypted IndexedDB records are not intentionally deleted.
