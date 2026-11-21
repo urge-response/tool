@@ -38,3 +38,6 @@ The JavaScript passed `node --check`, but browser end-to-end testing was blocked
 
 ## Version 1.2 troubleshooting
 If vault creation does not work, the error now displays below the button. Use a 12+ character passphrase, enter the same value twice, and access the site via its HTTPS GitHub Pages URL. Update **all files** (including `app.js`, `index.html`, `sw.js`) and hard refresh. Existing encrypted vaults are not intentionally deleted.
+
+## Version 1.3
+Adds home-screen installation instructions to the app home page for Android Chrome and iPhone Safari. No changes to encryption, passphrase, check-in questions, or saved-data format. Upload all files, including the updated service worker, to GitHub Pages.
