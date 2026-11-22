@@ -47,3 +47,12 @@ The check-in controls now use one persistent delegated click listener, rather th
 
 ## Version 1.5
 Restores missing `hasContent` helper used by draft saving and check-in navigation. No changes to the IndexedDB name, encryption scheme, vault record format, or approved questions. Upload `app.js`, `index.html`, and `sw.js` together. Do not clear site data.
+
+## Version 1.6
+Resume Draft now reloads the encrypted draft from the unlocked vault and displays its saved stage without writing over it first. Starting a check-in also no longer invokes draft saving prematurely. The encrypted storage format is unchanged. Upload app.js, index.html, and sw.js together. Do not clear browser storage.
+
+## Version 1.7 — Button and navigation audit
+Reviewed create/unlock vault, begin, resume, new, next, back, start over, save, copy, discard, history, view, delete, delete all, lock, top Home and tab navigation.
+Changes: ensure first-time Check-in tab has a valid stage; make Resume Draft restore saved data without overwriting; improve error reporting; wait for encrypted deletion to finish; propagate clipboard failures; keep the vault storage format unchanged.
+Validation: `node --check` and static checks for declared button actions passed. Automated Chromium browser execution was blocked by this environment's network policy, so end-to-end browser behavior remains unverified. Use test data first.
+Do not clear site data or uninstall your PWA.
