@@ -44,3 +44,6 @@ Adds home-screen installation instructions to the app home page for Android Chro
 
 ## Version 1.4 navigation fix
 The check-in controls now use one persistent delegated click listener, rather than handlers bound separately to buttons that are recreated on each screen. Navigation errors are displayed in the interface. Update `index.html`, `app.js`, and `sw.js` together; all other files may be kept. The encrypted vault database name and format are unchanged.
+
+## Version 1.5
+Restores missing `hasContent` helper used by draft saving and check-in navigation. No changes to the IndexedDB name, encryption scheme, vault record format, or approved questions. Upload `app.js`, `index.html`, and `sw.js` together. Do not clear site data.
