@@ -141,7 +141,7 @@ document.querySelectorAll('textarea[data-key]').forEach(t=>{
     const field=t;
     setTimeout(()=>{if(document.activeElement===field)field.scrollIntoView({block:'center',behavior:'instant'});},320);
   });
-});const r=$('intensity');if(r)r.addEventListener('input',()=>{data.intensity=Number(r.value);$('rating').textContent=`${data.intensity}/10`;saveDraft()});document.querySelectorAll('[data-action]').forEach(b=>b.addEventListener('click',()=>action(b.dataset.action,b.dataset.id)))}
+});const r=$('intensity');if(r)r.addEventListener('input',()=>{data.intensity=Number(r.value);$('rating').textContent=`${data.intensity}/10`;saveDraft()});}
 // Returns 'handled' or 'exit' for Android's system Back gesture.
 window.urgeAppBack = function(){
   if(view==='detail'){selectedEntry=null;view='history';render();}
@@ -157,11 +157,24 @@ function focusScreen(){
   if(heading){heading.setAttribute('tabindex','-1');heading.focus({preventScroll:true});}
   window.scrollTo({top:0,behavior:'instant'});
 }
-function nav(n){page=n;view='checkin';saveDraft();render();focusScreen()}
+function nav(n){page=Math.max(0,Math.min(4,n));view='checkin';saveDraft();render();focusScreen()}
 function clearDraft(){if(!removeStore(DRAFT_KEY))return false;Object.assign(data,blank());draftExists=false;page=0;return true}
 function newCheckin(){if(draftExists&&!confirm('Discard the unfinished draft and start a new check-in?'))return;if(!clearDraft())return;nav(0)}
 async function saveEntry(){const entries=getHistory();const entry={id:(typeof crypto!=='undefined'&&crypto.randomUUID)?crypto.randomUUID():`${Date.now()}-${Math.random().toString(36).slice(2)}`,createdAt:new Date().toISOString(),answers:{...data}};if(!writeStore(HISTORY_KEY,[entry,...entries])){$('status').textContent=lastSaveError;return}if(!clearDraft()){$('status').textContent='Check-in saved, but the draft could not be cleared.';return}try{await vault.pending}catch(e){$('status').textContent='Encrypted save failed. Please retry.';return}justSaved=true;view='history';render()}
 async function deleteEntry(id){if(!confirm('Permanently delete this saved check-in?'))return;const entries=getHistory();if(!writeStore(HISTORY_KEY,entries.filter(e=>e.id!==id)))return;try{await vault.pending}catch(e){alert('Encrypted deletion failed.');return}selectedEntry=null;view='history';render()}
+function showActionError(e){
+ console.error('Check-in navigation failed',e);
+ const status=document.getElementById('status')||document.getElementById('saveState');
+ if(status)status.textContent='Something went wrong: '+(e?.message||String(e))+'. Please try again.';
+}
+document.getElementById('content').addEventListener('click',event=>{
+ const button=event.target.closest('button[data-action]');
+ if(!button||!event.currentTarget.contains(button))return;
+ event.preventDefault();
+ try{const result=action(button.dataset.action,button.dataset.id);
+  if(result&&typeof result.catch==='function')result.catch(showActionError);
+ }catch(e){showActionError(e)}
+});
 function action(a,id){if(a==='lock'){
  document.getElementById('gateStatus').textContent='Saving before locking…';
  vault.pending.then(()=>{vault.key=null;vault.cache={};vaultReady=false;view='home';Object.assign(data,blank());draftExists=false;
@@ -169,7 +182,7 @@ function action(a,id){if(a==='lock'){
  document.getElementById('unlockPanel').hidden=false;document.getElementById('setupPanel').hidden=true;
  document.getElementById('gateStatus').textContent='App locked.';}).catch(()=>alert('Unable to finish saving. App remains unlocked.'));
  return;
-}if(a==='delete-all'){if(confirm('Permanently delete all saved check-ins and the unfinished draft? This cannot be undone.')){if(removeStore(DRAFT_KEY)&&removeStore(HISTORY_KEY)){Object.assign(data,blank());draftExists=false;page=0;selectedEntry=null;view='home';render()}else alert('Some data could not be deleted. Please try again.')}return;}if(a==='start'||a==='resume'){nav(draftExists?page:0)}else if(a==='new')newCheckin();else if(a==='next')nav(Math.min(page+1,4));else if(a==='back')nav(Math.max(page-1,0));else if(a==='restart'||a==='discard'){if(confirm('Discard this unfinished check-in and clear its draft?')&&clearDraft()){view='home';render()}}else if(a==='save')saveEntry();else if(a==='copy')copyResponses(summary());else if(a==='copy-entry'){const e=getHistory().find(x=>x.id===id);if(e)copyResponses(summary(e.answers))}else if(a==='history'){view='history';render()}else if(a==='view'){selectedEntry=id;view='detail';render()}else if(a==='delete')deleteEntry(id)}
+}if(a==='delete-all'){if(confirm('Permanently delete all saved check-ins and the unfinished draft? This cannot be undone.')){if(removeStore(DRAFT_KEY)&&removeStore(HISTORY_KEY)){Object.assign(data,blank());draftExists=false;page=0;selectedEntry=null;view='home';render()}else alert('Some data could not be deleted. Please try again.')}return;}if(a==='start'||a==='resume'){nav(draftExists?page:0)}else if(a==='new')newCheckin();else if(a==='next')nav(Math.min(page+1,4));else if(a==='back')nav(Math.max(page-1,0));else if(a==='restart'||a==='discard'){if(confirm('Discard this unfinished check-in and clear its draft?')&&clearDraft()){view='home';render()}}else if(a==='save')return saveEntry();else if(a==='copy')copyResponses(summary());else if(a==='copy-entry'){const e=getHistory().find(x=>x.id===id);if(e)copyResponses(summary(e.answers))}else if(a==='history'){view='history';render()}else if(a==='view'){selectedEntry=id;view='detail';render()}else if(a==='delete')return deleteEntry(id)}
 async function copyResponses(s){if(!confirm('Copying will place your private reflections on the system clipboard, outside this app’s encryption. Continue?'))return;try{await navigator.clipboard.writeText(s);$('status').textContent='Responses copied to clipboard.'}catch(e){const box=document.createElement('textarea');box.className='field';box.value=s;box.setAttribute('aria-label','Your responses, select to copy');$('status').replaceWith(box);box.focus();box.select();try{document.execCommand('copy')}catch(_){} }}
 $('home').addEventListener('click',()=>{view='home';render()});document.querySelectorAll('[data-nav]').forEach(b=>b.addEventListener('click',()=>{if(b.dataset.nav==='home')view='home';else if(b.dataset.nav==='history')view='history';else if(b.dataset.nav==='checkin'){if(!draftExists&&view!=='checkin'){Object.assign(data,blank());page=0}view='checkin'}render()}));
 document.getElementById('createVault').addEventListener('click',()=>gateAction('create'));

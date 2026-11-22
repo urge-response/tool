@@ -41,3 +41,6 @@ If vault creation does not work, the error now displays below the button. Use a 
 
 ## Version 1.3
 Adds home-screen installation instructions to the app home page for Android Chrome and iPhone Safari. No changes to encryption, passphrase, check-in questions, or saved-data format. Upload all files, including the updated service worker, to GitHub Pages.
+
+## Version 1.4 navigation fix
+The check-in controls now use one persistent delegated click listener, rather than handlers bound separately to buttons that are recreated on each screen. Navigation errors are displayed in the interface. Update `index.html`, `app.js`, and `sw.js` together; all other files may be kept. The encrypted vault database name and format are unchanged.
